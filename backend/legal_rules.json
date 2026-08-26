@@ -1,0 +1,51 @@
+[
+  {
+    "clause_type": "Landlord Entry Without Notice",
+    "rule": "A landlord must provide reasonable prior notice before entering a rented premises. Entering without notice violates the tenant's right to peaceful enjoyment under Kerala Buildings Lease and Rent Control Act.",
+    "source": "Kerala Buildings (Lease and Rent Control) Act 1965",
+    "state": "Kerala",
+    "risk_level": "RED"
+  },
+  {
+    "clause_type": "Eviction Notice Period",
+    "rule": "A minimum of 30 days written notice is required before eviction proceedings under Kerala Rent Control Act. Notice periods below 30 days are not legally enforceable.",
+    "source": "Kerala Buildings (Lease and Rent Control) Act 1965, Section 11",
+    "state": "Kerala",
+    "risk_level": "RED"
+  },
+  {
+    "clause_type": "Security Deposit",
+    "rule": "Security deposit exceeding 3 months rent is considered excessive. Under Model Tenancy Act 2021, deposits above this threshold can be challenged.",
+    "source": "Model Tenancy Act 2021",
+    "state": "Kerala",
+    "risk_level": "YELLOW"
+  },
+  {
+    "clause_type": "Unilateral Amendment",
+    "rule": "A clause allowing one party to unilaterally amend contract terms without the other party's consent is generally unenforceable under Indian Contract Act 1872.",
+    "source": "Indian Contract Act 1872, Section 10",
+    "state": "All India",
+    "risk_level": "RED"
+  },
+  {
+    "clause_type": "Jurisdiction Clause",
+    "rule": "Requiring dispute resolution exclusively in a city inaccessible to the weaker party may be challenged as an unfair contract term under Consumer Protection Act 2019.",
+    "source": "Consumer Protection Act 2019",
+    "state": "All India",
+    "risk_level": "YELLOW"
+  },
+  {
+    "clause_type": "Gratuity Waiver",
+    "rule": "An employee cannot waive their right to gratuity by contract. Any clause forfeiting gratuity entitlement is void under Payment of Gratuity Act 1972.",
+    "source": "Payment of Gratuity Act 1972, Section 14",
+    "state": "All India",
+    "risk_level": "RED"
+  },
+  {
+    "clause_type": "Automatic Renewal",
+    "rule": "Automatic renewal clauses without adequate prior notice to the other party may be considered unfair. Reasonable notice of at least 30 days before renewal is standard practice.",
+    "source": "Indian Contract Act 1872",
+    "state": "All India",
+    "risk_level": "YELLOW"
+  }
+]

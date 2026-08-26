@@ -1,145 +1,129 @@
-"""
-ClearClause — Proof of Concept: Single Clause Analyzer
---------------------------------------------------------
-Analyzes a single legal clause using the Gemini API with native JSON schema enforcement.
-
-SETUP (2 minutes):
-1. Get a free Gemini API key: https://aistudio.google.com/apikey
-2. pip install requests
-3. Set your key:   export GEMINI_API_KEY="your-key-here"   (Mac/Linux)
-                   set GEMINI_API_KEY=your-key-here        (Windows cmd)
-4. Run:   python clause_analyzer_poc.py
-"""
-
-import argparse
 import json
 import os
-import sys
 from dotenv import load_dotenv
 load_dotenv()
-import requests
 from fastapi import HTTPException
+from groq import Groq
 
-MODEL = "gemini-flash-latest"
-API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+MODEL = "openai/gpt-oss-120b"
 
 SAMPLE_CLAUSE = (
     "The Landlord shall have the right to enter the premises at any time "
     "for inspection or maintenance purposes without prior notice to the Tenant."
 )
 
-# JSON Schema for Gemini structured output enforcement
-RESPONSE_SCHEMA = {
-    "type": "OBJECT",
-    "properties": {
-        "clause_type": {
-            "type": "STRING",
-            "description": "Short label for what kind of clause this is"
-        },
-        "plain_explanation": {
-            "type": "STRING",
-            "description": "1-3 sentences in simple, everyday language explaining what this clause means"
-        },
-        "risk_rating": {
-            "type": "STRING",
-            "enum": ["Green", "Yellow", "Red"],
-            "description": "Risk assessment level"
-        },
-        "flag": {
-            "type": "STRING",
-            "description": "Specific statutory right or legal norm violated if Yellow/Red; empty string otherwise"
-        },
-        "disclaimer": {
-            "type": "STRING",
-            "description": "Standard legal disclaimer text"
-        }
-    },
-    "required": ["clause_type", "plain_explanation", "risk_rating", "flag", "disclaimer"]
-}
+def get_lang_instruction(language: str, fields: str) -> str:
+    if language == "Malayalam":
+        return f"""Write the {fields} in Malayalam (മലയാളം) script only.
+Use natural conversational Malayalam that a person in Kerala would use.
+Do not use English words except for proper legal terms that have no Malayalam equivalent.
+Do not mix Korean, Chinese, or any other script. Only Malayalam unicode characters and essential English legal terms."""
+    elif language == "Hindi":
+        return f"""Write the {fields} in Hindi (हिंदी) script only.
+Use natural conversational Hindi. Do not mix other scripts."""
+    elif language == "Tamil":
+        return f"""Write the {fields} in Tamil (தமிழ்) script only.
+Use natural conversational Tamil. Do not mix other scripts."""
+    elif language == "Telugu":
+        return f"""Write the {fields} in Telugu (తెలుగు) script only.
+Use natural conversational Telugu. Do not mix other scripts."""
+    else:
+        return f"Write the {fields} in clear, simple English."
 
 
-def build_prompt(clause_text: str, language: str) -> str:
-    return f"""You are a legal-literacy assistant for tier-2 and tier-3 India.
+def analyze_clause(clause_text: str, language: str, api_key: str = None) -> dict:
+    lang_instruction = get_lang_instruction(language, "plain_explanation, flag, and disclaimer")
+    prompt = f"""You are a legal-literacy assistant for tier-2 and tier-3 India.
 A person is about to sign a document and needs to understand one clause from it.
 
-Analyze the following clause and respond in {language} where requested:
-- Write the 'plain_explanation' and 'flag' fields in {language}.
-- Ensure 'risk_rating' strictly matches one of: Green, Yellow, Red.
+{lang_instruction}
+Ensure risk_rating is exactly one of: Green, Yellow, Red.
+Keep statement text faithful to the original document.
 
 Clause to analyze:
-\"\"\"{clause_text}\"\"\""""
+\"\"\"{clause_text}\"\"\"
 
-
-def analyze_clause(clause_text: str, language: str, api_key: str) -> dict:
-    payload = {
-        "contents": [{"parts": [{"text": build_prompt(clause_text, language)}]}],
-        "generationConfig": {
-            "responseMimeType": "application/json",
-            "responseSchema": RESPONSE_SCHEMA,
-            "temperature": 0.2  # Low temperature for precise legal analysis
-        }
-    }
+Respond ONLY with valid JSON, no other text:
+{{
+  "clause_type": "short label for what kind of clause this is",
+  "plain_explanation": "1-3 sentences in simple everyday language",
+  "risk_rating": "Green" or "Yellow" or "Red",
+  "flag": "specific legal norm violated if Yellow/Red, empty string otherwise",
+  "disclaimer": "standard disclaimer"
+}}"""
 
     try:
-        resp = requests.post(f"{API_URL}?key={api_key}", json=payload, timeout=30)
-        resp.raise_for_status()
-    except requests.exceptions.HTTPError:
-        body = resp.text[:500]
-        status_map = {
-            400: "Gemini rejected the request (400). Often means a bad API key or malformed request.",
-            403: "Access denied (403). Check if your API key is active.",
-            404: f"Model '{MODEL}' not found (404). Check current model names in AI Studio.",
-            429: "Rate limit hit (429). Free tier rate cap reached — wait a moment and retry."
-        }
-        msg = status_map.get(resp.status_code, f"Gemini API returned HTTP {resp.status_code}.")
-        print(f"ERROR: {msg}\nDetails: {body}")
-        raise HTTPException(status_code=500, detail=msg)
-    except requests.exceptions.RequestException as e:
-        print(f"ERROR: Could not reach Gemini API (network issue): {e}")
-        raise HTTPException(status_code=500, detail=msg)
-
-    data = resp.json()
-
-    if not data.get("candidates"):
-        reason = data.get("promptFeedback", {}).get("blockReason", "unknown")
-        print(f"ERROR: Gemini returned no result (blockReason: {reason}).")
-        raise HTTPException(status_code=500, detail=msg)
-
-    raw_text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
-
-    try:
-        return json.loads(raw_text)
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            max_tokens=1024,
+        )
+        text = response.choices[0].message.content.strip()
+        text = text.replace("```json", "").replace("```", "").strip()
+        return json.loads(text)
     except json.JSONDecodeError:
-        print(f"ERROR: Failed to parse JSON response:\n{raw_text}")
-        raise HTTPException(status_code=500, detail=msg)
+        raise HTTPException(status_code=502, detail="Failed to parse model response")
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=str(e))
 
 
-def main():
-    parser = argparse.ArgumentParser(description="ClearClause single-clause analyzer PoC")
-    parser.add_argument("--clause", default=SAMPLE_CLAUSE, help="The legal clause text to analyze")
-    parser.add_argument("--language", default="English", help="Output language (e.g., Malayalam, Hindi, Tamil, Telugu, English)")
-    args = parser.parse_args()
+def analyze_document(document_text: str, language: str, api_key: str = None) -> dict:
+    lang_instruction = get_lang_instruction(language, "summary, explanation, flag, and disclaimer")
+    prompt = f"""You are ClearClause, a legal literacy assistant for people in India.
+Analyze this document and split it into its meaningful individual statements or clauses.
+Return every meaningful statement including low-risk ones. Do not invent text.
+For each statement classify risk as exactly Green, Yellow, or Red.
 
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        print("ERROR: Set the GEMINI_API_KEY environment variable first.")
-        print('  export GEMINI_API_KEY="your-key-here"')
-        sys.exit(1)
+{lang_instruction}
+Keep the statement field faithful to the original document text.
+Use empty string for flag when there is no concern.
+This is legal information, not legal advice.
 
-    print(f"Analyzing clause (output language: {args.language})...\n")
-    print(f"Clause: {args.clause}\n")
+DOCUMENT:
+{document_text[:8000]}
 
-    result = analyze_clause(args.clause, args.language, api_key)
+Respond ONLY with valid JSON, no other text:
+{{
+  "summary": "2-3 sentence overview of the document",
+  "statements": [
+    {{
+      "statement": "exact text of the clause from document",
+      "risk_rating": "Green" or "Yellow" or "Red",
+      "explanation": "plain language explanation",
+      "flag": "specific legal concern or empty string"
+    }}
+  ],
+  "disclaimer": "standard disclaimer"
+}}"""
 
-    print("=" * 60)
-    print(f"Clause type   : {result.get('clause_type')}")
-    print(f"Risk rating   : {result.get('risk_rating')}")
-    print(f"Explanation   : {result.get('plain_explanation')}")
-    if result.get("flag"):
-        print(f"Flag          : {result.get('flag')}")
-    print(f"Disclaimer    : {result.get('disclaimer')}")
-    print("=" * 60)
+    try:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            max_tokens=4096,
+        )
+        text = response.choices[0].message.content.strip()
+        text = text.replace("```json", "").replace("```", "").strip()
+        result = json.loads(text)
+        if not result.get("summary") or not isinstance(result.get("statements"), list):
+            raise HTTPException(status_code=502, detail="Incomplete response from model")
+        return result
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=502, detail="Failed to parse model response")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=str(e))
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--clause", default=SAMPLE_CLAUSE)
+    parser.add_argument("--language", default="English")
+    args = parser.parse_args()
+    result = analyze_clause(args.clause, args.language)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
