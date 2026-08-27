@@ -4,16 +4,15 @@ import DashboardPanel from "./components/DashboardPanel"
 import ChatPanel from "./components/ChatPanel"
 
 export interface Statement {
-  statement: string
-  risk_rating: "Green" | "Yellow" | "Red"
+  clause_name: string
+  risk_level: "RED" | "YELLOW" | "GREEN"
   explanation: string
-  flag: string
 }
 
 export interface AnalysisResult {
+  overall_risk: "RED" | "YELLOW" | "GREEN"
   summary: string
-  statements: Statement[]
-  disclaimer: string
+  clauses: Statement[]
 }
 
 export interface ChatMessage {
@@ -33,7 +32,7 @@ export default function App() {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([])
   const [chatLoading, setChatLoading] = useState(false)
 
-  const analyze = async (text: string) => {
+  const analyze = async (text: string, selectedLanguage = language) => {
     setLoading(true)
     setError("")
     setResult(null)
@@ -43,13 +42,13 @@ export default function App() {
       const response = await fetch(`${API_BASE_URL}/analyze-document`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, language }),
+        body: JSON.stringify({ text, language: selectedLanguage }),
       })
       const data = await response.json().catch(() => null)
       if (!response.ok) {
         throw new Error(data?.detail ?? `Request failed with status ${response.status}`)
       }
-      if (!data?.summary || !Array.isArray(data?.statements)) {
+      if (!data?.summary || !Array.isArray(data?.clauses)) {
         throw new Error("The backend returned an incomplete analysis.")
       }
       setResult(data)
@@ -96,7 +95,8 @@ export default function App() {
             <span className="text-slate-400 text-xs ml-2">Legal document assistant</span>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+ 
+                <div className="flex items-center gap-3">
           <a
             href="/call"
             className="flex items-center gap-1.5 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-medium transition shadow-sm"
@@ -105,12 +105,17 @@ export default function App() {
             <span>📞</span>
             <span>Helpline Call (PoC)</span>
           </a>
+
           <div className="h-4 w-px bg-slate-700 mx-1" />
+
           <div className="flex gap-1">
             {LANGUAGES.map(lang => (
               <button
                 key={lang}
-                onClick={() => setLanguage(lang)}
+                onClick={() => {
+                  setLanguage(lang)
+                  if (documentText) void analyze(documentText, lang)
+                }}
                 className={`px-3 py-1 rounded text-xs font-medium transition
                   ${language === lang
                     ? "bg-blue-500 text-white"
@@ -121,6 +126,7 @@ export default function App() {
             ))}
           </div>
         </div>
+      
       </header>
 
       {/* Main — three columns, fixed height */}

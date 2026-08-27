@@ -10,7 +10,7 @@ from typing import Literal
 import pymupdf
 from google import genai
 from google.genai import types
-from groq import Groq
+from groq import AsyncGroq
 from clause_analyzer_poc import analyze_clause, analyze_document
 from admin_auth import create_admin_token, verify_password, require_admin
 from knowledge_base import insert_rule, list_rules, delete_rule,chunk_text
@@ -28,10 +28,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+groq_client = AsyncGroq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 API_KEY = os.environ.get("GEMINI_API_KEY")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-flash-latest")
-MODEL = "openai/gpt-oss-120b"
+MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 gemini_client = (
     genai.Client(api_key=API_KEY, http_options=types.HttpOptions(timeout=30000))
     if API_KEY else None
@@ -77,9 +78,8 @@ async def health():
 def extract_pdf_text(doc, language: str = "English") -> str:
     page_texts = [page.get_text("text", sort=True).strip() for page in doc]
     native_text = "\n".join(page_texts).strip()
-    has_broken_text = "\ufffd" in native_text or native_text.count("�") > 2
-    has_malayalam_text = any("\u0d00" <= character <= "\u0d7f" for character in native_text)
-    needs_ocr = not native_text or has_broken_text or (language == "Malayalam" and not has_malayalam_text)
+    has_broken_text = "\ufffd" in native_text or native_text.count("") > 2
+    needs_ocr = not native_text or has_broken_text
     if gemini_client is None or not needs_ocr:
         return native_text
 
@@ -139,13 +139,13 @@ def get_chat_lang_instruction(language: str) -> str:
 async def analyze(req: ClauseRequest):
     if not req.text.strip():
         raise HTTPException(status_code=400, detail="Text cannot be empty")
-    return await asyncio.to_thread(analyze_clause, req.text, req.language, API_KEY)
+    return await analyze_clause(req.text, req.language, API_KEY)
 
 @app.post("/analyze-document")
 async def analyze_document_endpoint(req: ClauseRequest):
     if not req.text.strip():
         raise HTTPException(status_code=400, detail="Document text cannot be empty")
-    return await asyncio.to_thread(analyze_document, req.text, req.language, API_KEY)
+    return await analyze_document(req.text, req.language, API_KEY)
 
 @app.post("/upload")
 async def upload(file: UploadFile = File(...), language: Literal["English", "Malayalam"] = "English"):
@@ -204,7 +204,9 @@ DOCUMENT:
     messages.append({"role": "user", "content": req.message})
 
     try:
-        response = await asyncio.to_thread(groq_client.chat.completions.create,
+        if groq_client is None:
+            raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured")
+        response = await groq_client.chat.completions.create(
             model=MODEL,
             messages=messages,
             temperature=0.3,

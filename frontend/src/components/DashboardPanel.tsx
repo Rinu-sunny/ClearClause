@@ -35,9 +35,9 @@ export default function DashboardPanel({ result, loading }: Props) {
     )
   }
 
-  const red = result.statements.filter(s => s.risk_rating === "Red")
-  const yellow = result.statements.filter(s => s.risk_rating === "Yellow")
-  const green = result.statements.filter(s => s.risk_rating === "Green")
+  const red = result.clauses.filter(s => s.risk_level === "RED")
+  const yellow = result.clauses.filter(s => s.risk_level === "YELLOW")
+  const green = result.clauses.filter(s => s.risk_level === "GREEN")
 
   return (
     <div className="h-full overflow-y-auto p-6 space-y-5">
@@ -59,7 +59,6 @@ export default function DashboardPanel({ result, loading }: Props) {
       {yellow.length > 0 && <ClauseGroup title="Clauses to Review" statements={yellow} />}
       {green.length > 0 && <ClauseGroup title="Low Risk Clauses" statements={green} />}
 
-      <p className="text-xs text-slate-400 italic pb-2">{result.disclaimer}</p>
     </div>
   )
 }
@@ -76,7 +75,7 @@ function StatCard({ count, label, color, bg, border }: {
 }
 
 function ClauseGroup({ title, statements }: { title: string; statements: Statement[] }) {
-  const c = RISK_CONFIG[statements[0].risk_rating]
+  const c = RISK_CONFIG[statements[0].risk_level === "RED" ? "Red" : statements[0].risk_level === "YELLOW" ? "Yellow" : "Green"]
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
@@ -86,19 +85,12 @@ function ClauseGroup({ title, statements }: { title: string; statements: Stateme
       {statements.map((s, i) => (
         <div key={i} className={`rounded-2xl border-l-4 ${c.bg} ${c.border} p-4 space-y-2`}>
           <div className="flex items-start justify-between gap-3">
-            <p className="text-xs font-medium text-slate-600 leading-relaxed italic">"{s.statement}"</p>
+            <p className="text-xs font-medium text-slate-600 leading-relaxed italic">{s.clause_name}</p>
             <span className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${c.badge}`}>
               {c.label}
             </span>
           </div>
           <p className="text-sm text-slate-700 leading-relaxed">{s.explanation}</p>
-          {s.flag && (
-            <div className="rounded-lg bg-white/70 border border-slate-200 px-3 py-2">
-              <p className="text-xs text-slate-500">
-                <span className="font-semibold">⚠ Legal flag: </span>{s.flag}
-              </p>
-            </div>
-          )}
         </div>
       ))}
     </div>
