@@ -1,0 +1,385 @@
+/* ═══════════════════════════════════════════════════════════════
+   VoiceCallPage — phone-call simulation styles
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Root ── */
+.voice-call-root {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Inter', 'SF Pro Display', -apple-system, system-ui, sans-serif;
+  overflow: hidden;
+  color: #fff;
+  z-index: 9999;
+  /* Mobile viewport fix: dvh handles the dynamic browser chrome */
+  height: 100dvh;
+  height: 100vh; /* fallback for older browsers */
+  -webkit-tap-highlight-color: transparent;
+}
+
+@supports (height: 100dvh) {
+  .voice-call-root {
+    height: 100dvh;
+  }
+}
+
+.voice-ringing {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0f172a 100%);
+  justify-content: center;
+}
+
+.voice-active {
+  background: linear-gradient(180deg, #0f172a 0%, #1a1a2e 50%, #16213e 100%);
+}
+
+.voice-ended {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f172a 100%);
+  justify-content: center;
+}
+
+/* ── Ambient glow ── */
+.voice-bg-glow {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: voice-glow-pulse 3s ease-in-out infinite;
+}
+.voice-bg-glow-active {
+  top: 5%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+}
+
+@keyframes voice-glow-pulse {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.15); }
+}
+
+/* ── Incoming call layout ── */
+.voice-incoming {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 1;
+  padding: 0 1.5rem;
+}
+
+/* ── Avatar ── */
+.voice-avatar {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 1.5rem;
+}
+.voice-avatar-inner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);
+}
+.voice-avatar-ended {
+  background: linear-gradient(135deg, #64748b, #475569);
+  box-shadow: 0 0 20px rgba(100, 116, 139, 0.3);
+}
+.voice-avatar-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  animation: voice-ring-expand 2.5s ease-out infinite;
+}
+.voice-avatar-ring-2 {
+  animation-delay: 1.25s;
+}
+
+@keyframes voice-ring-expand {
+  0% { transform: scale(0.7); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* ── Caller info ── */
+.voice-caller-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-align: center;
+}
+.voice-caller-label {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin: 0;
+  animation: voice-label-blink 2s ease-in-out infinite;
+}
+@keyframes voice-label-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.voice-error {
+  color: #f87171;
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+  text-align: center;
+  padding: 0 2rem;
+}
+
+/* ── Call action buttons ── */
+.voice-call-actions {
+  display: flex;
+  gap: 3rem;
+  margin-top: 3rem;
+}
+.voice-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  color: #fff;
+  touch-action: manipulation; /* prevents double-tap zoom on mobile */
+  -webkit-user-select: none;
+  user-select: none;
+}
+.voice-btn:hover {
+  transform: scale(1.1);
+}
+.voice-btn:active {
+  transform: scale(0.95);
+}
+.voice-btn-answer {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.4);
+  animation: voice-btn-bounce 2s ease-in-out infinite;
+}
+.voice-btn-decline {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+.voice-btn-hangup {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+}
+
+@keyframes voice-btn-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* ── Active call: top bar ── */
+.voice-topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  /* iPhone safe area for status bar / notch */
+  padding-top: max(1rem, env(safe-area-inset-top, 0px));
+  align-self: stretch;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.voice-dot-live {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+  animation: voice-dot-blink 1.5s ease-in-out infinite;
+}
+@keyframes voice-dot-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.voice-timer {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Active: header ── */
+.voice-active-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1.5rem;
+  flex-shrink: 0;
+}
+.voice-mini-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.voice-active-name {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+.voice-active-status {
+  font-size: 0.75rem;
+  color: #22c55e;
+  margin: 0;
+  animation: voice-label-blink 2s ease-in-out infinite;
+}
+
+/* ── Waveform ── */
+.voice-waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 48px;
+  padding: 0.75rem 0;
+  flex-shrink: 0;
+}
+.voice-wave-bar {
+  width: 4px;
+  height: 8px;
+  border-radius: 2px;
+  background: #475569;
+  transition: height 0.3s, background 0.3s;
+}
+.voice-wave-speaking {
+  background: #3b82f6;
+  animation: voice-wave-anim 0.6s ease-in-out infinite alternate;
+}
+.voice-wave-listening {
+  background: #22c55e;
+  animation: voice-wave-anim 0.8s ease-in-out infinite alternate;
+}
+@keyframes voice-wave-anim {
+  0% { height: 6px; }
+  100% { height: 32px; }
+}
+
+/* ── Transcript area ── */
+.voice-transcript {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+  align-self: stretch;
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
+}
+.voice-msg {
+  max-width: 85%;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  word-break: break-word; /* prevent long words from overflowing on small screens */
+}
+.voice-msg p {
+  margin: 0;
+}
+.voice-msg-label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+  opacity: 0.6;
+}
+.voice-msg-user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border-bottom-right-radius: 4px;
+  color: #fff;
+}
+.voice-msg-ai {
+  align-self: flex-start;
+  background: #1e293b;
+  border-bottom-left-radius: 4px;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+}
+.voice-msg-live {
+  opacity: 0.7;
+}
+.voice-cursor {
+  animation: voice-blink 1s step-end infinite;
+  color: rgba(255, 255, 255, 0.5);
+}
+@keyframes voice-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ── Thinking dots ── */
+.voice-thinking {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  height: 1.2em;
+}
+.voice-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #64748b;
+  animation: voice-dot-bounce 1s ease-in-out infinite;
+}
+@keyframes voice-dot-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+
+/* ── Bottom bar ── */
+.voice-bottom-bar {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem;
+  /* iPhone safe area for home indicator */
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+  flex-shrink: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .voice-caller-name {
+    font-size: 1.25rem;
+  }
+  .voice-call-actions {
+    gap: 2.5rem;
+  }
+  .voice-bg-glow {
+    width: 280px;
+    height: 280px;
+  }
+}
+. v o i c e - s e n s i t i v i t y  
+   w i d t h :   8 0 % ;   m a x - w i d t h :   4 0 0 p x ;   m a r g i n :   1 r e m   a u t o ;   t e x t - a l i g n :   c e n t e r ;    
+ 

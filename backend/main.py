@@ -14,6 +14,7 @@ from groq import Groq
 from clause_analyzer_poc import analyze_clause, analyze_document
 from admin_auth import create_admin_token, verify_password, require_admin
 from knowledge_base import insert_rule, list_rules, delete_rule,chunk_text
+from voice_chat import voice_chat, voice_chat_audio, generate_tts_base64, GREETING as VOICE_GREETING
 
 
 app = FastAPI()
@@ -45,6 +46,10 @@ class ChatRequest(BaseModel):
     document_context: str = Field(min_length=1, max_length=50000)
     history: list = Field(default_factory=list, max_length=12)
     language: Literal["English", "Malayalam"] = "English"
+
+class VoiceChatRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=4000)
+    history: list = Field(default_factory=list, max_length=20)
 
 class AdminLoginRequest(BaseModel):
     password: str
@@ -209,6 +214,43 @@ DOCUMENT:
         return {"response": response.choices[0].message.content}
     except Exception as e:
         raise HTTPException(status_code=502, detail="AI service is temporarily unavailable")
+
+
+@app.get("/voice-chat/greeting")
+async def voice_greeting():
+    audio_base64 = await generate_tts_base64(VOICE_GREETING)
+    return {"greeting": VOICE_GREETING, "audio": audio_base64}
+
+
+@app.post("/voice-chat")
+async def voice_chat_endpoint(req: VoiceChatRequest):
+    try:
+        response = await asyncio.to_thread(voice_chat, req.message, req.history)
+        audio_base64 = await generate_tts_base64(response)
+        return {"response": response, "audio": audio_base64}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=502, detail=f"Voice chat error: {str(e)}")
+
+
+@app.post("/voice-chat/audio")
+async def voice_chat_audio_endpoint(audio: UploadFile = File(...), history: str = Form("[]")):
+    import json
+    try:
+        history_list = json.loads(history)
+        audio_bytes = await audio.read()
+        
+        result = await asyncio.to_thread(voice_chat_audio, audio_bytes, history_list)
+        response_text = result["ai_response"]
+        user_text = result["user_text"]
+        
+        audio_base64 = await generate_tts_base64(response_text)
+        return {"response": response_text, "audio": audio_base64, "user_text": user_text}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=502, detail=f"Voice chat audio error: {str(e)}")
 
 
 @app.post("/admin/login")
