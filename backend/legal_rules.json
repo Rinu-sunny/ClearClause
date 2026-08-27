@@ -1,10 +1,31 @@
 [
   {
-    "clause_type": "Landlord Entry Without Notice",
-    "rule": "A landlord must provide reasonable prior notice before entering a rented premises. Entering without notice violates the tenant's right to peaceful enjoyment under Kerala Buildings Lease and Rent Control Act.",
-    "source": "Kerala Buildings (Lease and Rent Control) Act 1965",
+    "clause_type": "Excessive Advance Rent",
+    "rule": "Where fair rent has been determined for a building under Section 8 of the Kerala Buildings (Lease and Rent Control) Act 1965, a landlord shall not claim or receive more than one month's rent as advance. A tenancy clause requiring six months' rent or any amount above one month's rent in advance should be flagged for review as excessive.",
+    "source": "Kerala Buildings (Lease and Rent Control) Act 1965, Section 8",
     "state": "Kerala",
     "risk_level": "RED"
+  },
+  {
+    "clause_type": "Landlord Entry Without Notice",
+    "rule": "A landlord should provide reasonable prior notice before entering a rented premises for inspection or maintenance. A clause allowing entry at any time without notice can interfere with the tenant's right to peaceful enjoyment and should be flagged for review.",
+    "source": "Kerala Buildings (Lease and Rent Control) Act 1965, tenant peaceful enjoyment principle",
+    "state": "Kerala",
+    "risk_level": "RED"
+  },
+  {
+    "clause_type": "Exclusive Inaccessible Jurisdiction",
+    "rule": "An agreement requiring a Kerala tenant to resolve every dispute exclusively in New Delhi or another impractical distant court, especially while waiving access to local courts, may be an unfair contract term and should be flagged as high risk.",
+    "source": "Consumer Protection Act 2019, unfair contract terms",
+    "state": "Kerala",
+    "risk_level": "RED"
+  },
+  {
+    "clause_type": "Tenant Minor Repair Burden",
+    "rule": "A clause assigning minor repairs to the tenant may be acceptable when limited and reasonable, but it should be reviewed when it shifts maintenance responsibility or creates an additional financial burden.",
+    "source": "Model Tenancy Act 2021, Section 12",
+    "state": "Kerala",
+    "risk_level": "YELLOW"
   },
   {
     "clause_type": "Eviction Notice Period",
@@ -14,37 +35,156 @@
     "risk_level": "RED"
   },
   {
-    "clause_type": "Security Deposit",
-    "rule": "Security deposit exceeding 3 months rent is considered excessive. Under Model Tenancy Act 2021, deposits above this threshold can be challenged.",
+    "clause_type": "Security Deposit Amount",
+    "rule": "Security deposit exceeding 3 months rent is considered excessive. Under Model Tenancy Act 2021, deposits above this threshold can be challenged as unreasonable.",
     "source": "Model Tenancy Act 2021",
     "state": "Kerala",
     "risk_level": "YELLOW"
   },
   {
+    "clause_type": "Security Deposit Non-Refund",
+    "rule": "A landlord who withholds a tenant's security deposit at the end of tenancy without a valid, documented reason (unpaid rent, verified damages) is in violation. The tenant is entitled to a refund within a reasonable period, typically within one month of vacating, after adjustment for legitimate deductions.",
+    "source": "Model Tenancy Act 2021, Section 10",
+    "state": "Kerala",
+    "risk_level": "RED"
+  },
+  {
+    "clause_type": "Rent Increase Notice",
+    "rule": "A landlord must provide written notice at least 3 months in advance before increasing rent, and increases must follow the schedule stated in the rental agreement. Arbitrary mid-term rent increases without such notice are not enforceable.",
+    "source": "Model Tenancy Act 2021, Section 8",
+    "state": "Kerala",
+    "risk_level": "YELLOW"
+  },
+  {
+    "clause_type": "Maintenance Cost Shifting",
+    "rule": "Structural repairs and major maintenance are ordinarily the landlord's responsibility. A clause forcing the tenant to bear all structural repair costs, rather than costs from tenant's own damage or minor upkeep, shifts an unfair burden onto the tenant.",
+    "source": "Model Tenancy Act 2021, Section 12",
+    "state": "Kerala",
+    "risk_level": "YELLOW"
+  },
+  {
     "clause_type": "Unilateral Amendment",
-    "rule": "A clause allowing one party to unilaterally amend contract terms without the other party's consent is generally unenforceable under Indian Contract Act 1872.",
+    "rule": "A clause allowing one party to unilaterally amend contract terms without the other party's consent is generally unenforceable, as valid contract modification requires mutual agreement of both parties.",
     "source": "Indian Contract Act 1872, Section 10",
     "state": "All India",
     "risk_level": "RED"
   },
   {
     "clause_type": "Jurisdiction Clause",
-    "rule": "Requiring dispute resolution exclusively in a city inaccessible to the weaker party may be challenged as an unfair contract term under Consumer Protection Act 2019.",
+    "rule": "Requiring dispute resolution exclusively in a city inaccessible to the weaker party may be challenged as an unfair contract term, particularly in consumer contracts where it restricts a party's practical ability to seek legal remedy.",
     "source": "Consumer Protection Act 2019",
     "state": "All India",
     "risk_level": "YELLOW"
   },
   {
+    "clause_type": "Automatic Renewal",
+    "rule": "Automatic renewal clauses without adequate prior notice to the other party may be considered unfair. Reasonable notice of at least 30 days before renewal, along with a clear opt-out mechanism, is standard practice.",
+    "source": "Consumer Protection Act 2019",
+    "state": "All India",
+    "risk_level": "YELLOW"
+  },
+  {
+    "clause_type": "Penalty Clause Disproportionate",
+    "rule": "A penalty or liquidated damages clause that is disproportionate to the actual likely loss is not fully enforceable. Courts will only award reasonable compensation, not the full penalty amount, if it is deemed excessive.",
+    "source": "Indian Contract Act 1872, Section 74",
+    "state": "All India",
+    "risk_level": "YELLOW"
+  },
+  {
+    "clause_type": "No Visitors Allowed",
+    "rule": "A blanket clause banning all visitors is not directly addressed by tenancy statutes and is generally treated as a private agreement term, though it may be considered an unreasonable restriction on the tenant's peaceful enjoyment of the property if enforced punitively.",
+    "source": "General tenancy principle — no specific statute",
+    "state": "All India",
+    "risk_level": "GREEN"
+  },
+  {
     "clause_type": "Gratuity Waiver",
-    "rule": "An employee cannot waive their right to gratuity by contract. Any clause forfeiting gratuity entitlement is void under Payment of Gratuity Act 1972.",
+    "rule": "An employee cannot waive their right to gratuity by contract. Any clause forfeiting gratuity entitlement, or making it conditional on terms not in the Act, is void.",
     "source": "Payment of Gratuity Act 1972, Section 14",
     "state": "All India",
     "risk_level": "RED"
   },
   {
-    "clause_type": "Automatic Renewal",
-    "rule": "Automatic renewal clauses without adequate prior notice to the other party may be considered unfair. Reasonable notice of at least 30 days before renewal is standard practice.",
-    "source": "Indian Contract Act 1872",
+    "clause_type": "Notice Period Employment",
+    "rule": "An employment contract requiring an employee to give a significantly longer notice period than the employer (e.g. 3 months from employee vs 2 weeks from employer) may be challenged as an unreasonable and one-sided restraint, though enforceability varies by state shops and establishments acts.",
+    "source": "State Shops and Establishments Act (varies by state)",
+    "state": "All India",
+    "risk_level": "YELLOW"
+  },
+  {
+    "clause_type": "Salary Withholding on Resignation",
+    "rule": "An employer withholding an employee's full and final settlement (including earned salary) beyond a reasonable period after resignation or termination, without lawful deduction, violates timely wage payment requirements.",
+    "source": "Payment of Wages Act 1936",
+    "state": "All India",
+    "risk_level": "RED"
+  },
+  {
+    "clause_type": "Non-Compete Clause",
+    "rule": "A non-compete clause that restrains an employee from taking up any employment in the same field after leaving the company is void as an unreasonable restraint of trade, except for narrow protections like trade secrets during employment. Post-employment blanket non-competes are generally unenforceable in India.",
+    "source": "Indian Contract Act 1872, Section 27",
+    "state": "All India",
+    "risk_level": "RED"
+  },
+  {
+    "clause_type": "Excessive Working Hours",
+    "rule": "Requiring an employee to work beyond the statutory daily/weekly limit (typically 9 hours/day, 48 hours/week) without additional overtime compensation violates working hours regulations under most state shops and establishments acts.",
+    "source": "State Shops and Establishments Act (varies by state)",
+    "state": "All India",
+    "risk_level": "YELLOW"
+  },
+  {
+    "clause_type": "Probation Period Excessive",
+    "rule": "An unusually long probation period (e.g. exceeding 12 months) with reduced benefits and easier termination may be scrutinized as an attempt to deny statutory employee protections indefinitely, though probation itself is legally permitted.",
+    "source": "General employment law principle",
+    "state": "All India",
+    "risk_level": "YELLOW"
+  },
+  {
+    "clause_type": "Loan Prepayment Penalty",
+    "rule": "For floating-rate loans to individual borrowers, RBI guidelines prohibit lenders from charging a prepayment or foreclosure penalty. A clause imposing such a penalty on a floating-rate personal loan is not enforceable.",
+    "source": "RBI Circular on Prepayment Charges on Loans, 2014",
+    "state": "All India",
+    "risk_level": "RED"
+  },
+  {
+    "clause_type": "Hidden Processing Fees",
+    "rule": "Loan or service agreements must disclose all fees and charges upfront in the Key Fact Statement. Charges not disclosed at the time of agreement and added later are considered unfair trade practice.",
+    "source": "RBI Fair Practices Code / Consumer Protection Act 2019",
+    "state": "All India",
+    "risk_level": "YELLOW"
+  },
+  {
+    "clause_type": "Compound Interest on Default",
+    "rule": "Charging compound (interest-on-interest) penal charges on a defaulted personal loan installment, rather than simple penal interest, may be challenged as excessive under RBI's fair lending practice guidelines, which favor penal charges over penal interest.",
+    "source": "RBI Guidelines on Penal Charges in Loan Accounts, 2023",
+    "state": "All India",
+    "risk_level": "YELLOW"
+  },
+  {
+    "clause_type": "Unilateral Interest Rate Change",
+    "rule": "A lender unilaterally increasing the interest rate on an existing loan without prior written notice to the borrower, or without a clear contractual benchmark-linked mechanism, is a violation of fair lending practice norms.",
+    "source": "RBI Fair Practices Code for Lenders",
+    "state": "All India",
+    "risk_level": "RED"
+  },
+  {
+    "clause_type": "Mandatory Arbitration Waiving Court Access",
+    "rule": "A clause forcing a consumer into binding arbitration and explicitly waiving their right to approach a consumer forum or civil court may be considered an unfair contract term, since the Consumer Protection Act provides a statutory right to approach consumer commissions regardless of arbitration clauses.",
+    "source": "Consumer Protection Act 2019, Section 2(46)",
+    "state": "All India",
+    "risk_level": "RED"
+  },
+  {
+    "clause_type": "No Refund Policy Absolute",
+    "rule": "An absolute 'no refund under any circumstances' clause, including for defective goods or services not rendered, conflicts with a consumer's statutory right to refund, replacement, or compensation for deficient goods and services.",
+    "source": "Consumer Protection Act 2019, Section 2(11)",
+    "state": "All India",
+    "risk_level": "RED"
+  },
+  {
+    "clause_type": "Indemnity Clause Overbroad",
+    "rule": "An indemnity clause requiring one party to compensate the other for all losses 'howsoever caused', including losses from the other party's own negligence or wrongdoing, is generally viewed as one-sided and may be read down or challenged as unconscionable.",
+    "source": "Indian Contract Act 1872, general principles of unconscionable contracts",
     "state": "All India",
     "risk_level": "YELLOW"
   }

@@ -5,3 +5,7 @@ PyMuPDF
 python-multipart
 pydantic
 python-dotenv
+pyjwt
+groq
+google-genai
+supabase

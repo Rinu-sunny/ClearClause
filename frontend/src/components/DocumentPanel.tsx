@@ -5,26 +5,50 @@ interface Props {
   loading: boolean
   error: string
   hasResult: boolean
+  language: string
 }
 
-export default function DocumentPanel({ onAnalyze, loading, error, hasResult }: Props) {
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000"
+
+export default function DocumentPanel({ onAnalyze, loading, error, hasResult, language }: Props) {
   const [text, setText] = useState("")
   const [pdfLoading, setPdfLoading] = useState(false)
+  const [pdfError, setPdfError] = useState("")
 
   const handlePDF = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      setPdfError("Please choose a PDF agreement.")
+      return
+    }
     setPdfLoading(true)
+    setPdfError("")
     try {
       const form = new FormData()
       form.append("file", file)
-      const res = await fetch("http://localhost:8000/upload", { method: "POST", body: form })
-      const data = await res.json()
+      const controller = new AbortController()
+      const timeout = window.setTimeout(() => controller.abort(), 50000)
+      const res = await fetch(`${API_BASE_URL}/upload?language=${encodeURIComponent(language)}`, {
+        method: "POST",
+        body: form,
+        signal: controller.signal,
+      }).finally(() => window.clearTimeout(timeout))
+      const data = await res.json().catch(() => null)
+      if (!res.ok) {
+        throw new Error(data?.detail ?? `PDF upload failed (${res.status})`)
+      }
+      if (typeof data?.text !== "string" || !data.text.trim()) {
+        throw new Error("No readable text was found. Please use a text-based PDF.")
+      }
       setText(data.text)
-    } catch {
-      // silently fail — user can paste manually
+    } catch (err) {
+      setPdfError(err instanceof DOMException && err.name === "AbortError"
+        ? "PDF reading timed out. Check the OCR service or try a smaller PDF."
+        : err instanceof Error ? err.message : "Could not read this PDF.")
     } finally {
       setPdfLoading(false)
+      e.target.value = ""
     }
   }
 
@@ -61,6 +85,12 @@ export default function DocumentPanel({ onAnalyze, loading, error, hasResult }: 
             disabled={pdfLoading}
           />
         </label>
+
+        {pdfError && (
+          <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-600">
+            {pdfError}
+          </div>
+        )}
 
         {error && (
           <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-600">

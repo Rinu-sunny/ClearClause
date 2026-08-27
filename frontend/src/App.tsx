@@ -21,7 +21,8 @@ export interface ChatMessage {
   content: string
 }
 
-const LANGUAGES = ["English", "Malayalam", "Hindi", "Tamil", "Telugu"]
+const LANGUAGES = ["English", "Malayalam"]
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000"
 
 export default function App() {
   const [result, setResult] = useState<AnalysisResult | null>(null)
@@ -39,7 +40,7 @@ export default function App() {
     setChatHistory([])
     setDocumentText(text)
     try {
-      const response = await fetch("http://localhost:8000/analyze-document", {
+      const response = await fetch(`${API_BASE_URL}/analyze-document`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, language }),
@@ -65,7 +66,7 @@ export default function App() {
     setChatHistory(newHistory)
     setChatLoading(true)
     try {
-      const res = await fetch("http://localhost:8000/chat", {
+      const res = await fetch(`${API_BASE_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -85,7 +86,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans flex flex-col">
+    <div className="h-screen overflow-hidden bg-slate-100 font-sans flex flex-col">
       {/* Header */}
       <header className="bg-slate-900 text-white px-6 py-3 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
@@ -111,7 +112,7 @@ export default function App() {
         </div>
       </header>
 
-            {/* Main — three columns, fixed height */}
+      {/* Main — three columns, fixed height */}
       <main className="flex-1 flex overflow-hidden min-h-0">
         {/* Left — document input */}
         <div className="w-72 shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden">
@@ -120,6 +121,7 @@ export default function App() {
             loading={loading}
             error={error}
             hasResult={!!result}
+            language={language}
           />
         </div>
 
@@ -130,7 +132,7 @@ export default function App() {
 
         {/* Right — chat, scrolls internally */}
         {result && (
-          <div className="w-80 shrink-0 border-l border-slate-200 bg-white flex flex-col overflow-hidden">
+          <div className="w-80 max-w-full min-w-0 shrink-0 border-l border-slate-200 bg-white flex flex-col overflow-hidden">
             <ChatPanel
               history={chatHistory}
               onSend={sendChat}
@@ -140,8 +142,6 @@ export default function App() {
           </div>
         )}
       </main>
-
-        
     </div>
   )
 }
