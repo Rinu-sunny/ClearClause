@@ -96,19 +96,30 @@ export default function App() {
             <span className="text-slate-400 text-xs ml-2">Legal document assistant</span>
           </div>
         </div>
-        <div className="flex gap-1">
-          {LANGUAGES.map(lang => (
-            <button
-              key={lang}
-              onClick={() => setLanguage(lang)}
-              className={`px-3 py-1 rounded text-xs font-medium transition
-                ${language === lang
-                  ? "bg-blue-500 text-white"
-                  : "text-slate-400 hover:text-white hover:bg-slate-700"}`}
-            >
-              {lang}
-            </button>
-          ))}
+        <div className="flex items-center gap-3">
+          <a
+            href="/call"
+            className="flex items-center gap-1.5 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-medium transition shadow-sm"
+            title="Launch phone call helpline simulation"
+          >
+            <span>📞</span>
+            <span>Helpline Call (PoC)</span>
+          </a>
+          <div className="h-4 w-px bg-slate-700 mx-1" />
+          <div className="flex gap-1">
+            {LANGUAGES.map(lang => (
+              <button
+                key={lang}
+                onClick={() => setLanguage(lang)}
+                className={`px-3 py-1 rounded text-xs font-medium transition
+                  ${language === lang
+                    ? "bg-blue-500 text-white"
+                    : "text-slate-400 hover:text-white hover:bg-slate-700"}`}
+              >
+                {lang}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
